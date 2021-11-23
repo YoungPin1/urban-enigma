@@ -2,7 +2,9 @@ import sqlite3
 import sys
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QAbstractItemView
+
+import add_edit
 
 
 class Coffee(QMainWindow):
@@ -10,38 +12,53 @@ class Coffee(QMainWindow):
         super().__init__()
         uic.loadUi('main.ui', self)
         self.run()
-        self.init_table()
+        self.fill_table(self.tbl_wdt, self.load_db())
+        self.init_table(self.tbl_wdt)
+        self.tbl_wdt.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
-    def init_table(self):
-        self.tbl_wdt.setHorizontalHeaderLabels(['Название сорта', 'Степень обжарки', 'Молотый/В Зернах',
-                                                'Описание вкуса', 'Цена в рублях', 'Объем в граммах'])
-        head_view = self.tbl_wdt.horizontalHeader()
+    @staticmethod
+    def init_table(table):
+        table.setHorizontalHeaderLabels(['Название сорта', 'Степень обжарки', 'Молотый/В Зернах',
+                                         'Описание вкуса', 'Цена в рублях', 'Объем в граммах'])
+        head_view = table.horizontalHeader()
         head_view.setSectionResizeMode(0, 3)
         head_view.setSectionResizeMode(1, 3)
         head_view.setSectionResizeMode(2, 3)
         head_view.setSectionResizeMode(3, 3)
         head_view.setSectionResizeMode(4, 3)
         head_view.setSectionResizeMode(5, 3)
-        self.tbl_wdt.resizeColumnsToContents()
+        table.resizeColumnsToContents()
 
     def run(self):
-        self.fill_table(self.load_db())
+        self.btn_edit.clicked.connect(self.edit)
 
-    def load_db(self):
+    @staticmethod
+    def load_db():
         con = sqlite3.connect('coffee.sqlite')
         cur = con.cursor()
         return cur.execute("""SELECT name, roast, type, description, price, volume FROM data""").fetchall()
 
-    def fill_table(self, types):
-        self.tbl_wdt.setColumnCount(6)
-        self.tbl_wdt.setRowCount(len(types))
+    @staticmethod
+    def fill_table(table, types):
+        table.setColumnCount(6)
+        table.setRowCount(len(types))
         for i in range(len(types)):
             for j in range(6):
-                self.tbl_wdt.setItem(i, j, QTableWidgetItem(str(types[i][j])))
+                table.setItem(i, j, QTableWidgetItem(str(types[i][j])))
+
+    def edit(self):
+        self.edit_window = add_edit.AddEdit()
+        self.hide()
+        self.edit_window.show()
+
+
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Coffee()
     ex.show()
+    sys.excepthook = except_hook
     sys.exit(app.exec())
