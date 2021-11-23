@@ -1,17 +1,16 @@
 import sqlite3
 
-from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow
 
 import main
+from addEditCoffeeForm import Ui_MainWindow
 
 
-class AddEdit(QMainWindow):
+class AddEdit(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('addEditCoffeeForm.ui', self)
+        self.setupUi(self)
         self.run()
-
         main.Coffee.fill_table(self.tbl_wdt, main.Coffee.load_db())
         main.Coffee.init_table(self.tbl_wdt)
 
@@ -42,7 +41,7 @@ class AddEdit(QMainWindow):
         self.save_db(all_words)
 
     def save_db(self, all_words):
-        con = sqlite3.connect('coffee.sqlite')
+        con = sqlite3.connect('C:/Users/Batta/Desktop/Lesson 12. Git repo/data/coffee.sqlite')
         cur = con.cursor()
         cur.execute('DELETE FROM data')
         for row in all_words:

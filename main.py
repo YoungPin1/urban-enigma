@@ -1,16 +1,16 @@
 import sqlite3
 import sys
 
-from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QAbstractItemView
 
 import add_edit
+from main_design import Ui_MainWindow
 
 
-class Coffee(QMainWindow):
+class Coffee(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main.ui', self)
+        self.setupUi(self)
         self.run()
         self.fill_table(self.tbl_wdt, self.load_db())
         self.init_table(self.tbl_wdt)
@@ -34,7 +34,7 @@ class Coffee(QMainWindow):
 
     @staticmethod
     def load_db():
-        con = sqlite3.connect('coffee.sqlite')
+        con = sqlite3.connect('C:/Users/Batta/Desktop/Lesson 12. Git repo/data/coffee.sqlite')
         cur = con.cursor()
         return cur.execute("""SELECT name, roast, type, description, price, volume FROM data""").fetchall()
 
